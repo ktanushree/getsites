@@ -18,10 +18,9 @@ MIT
 #### Installation:
  - **Github:** Download files to a local directory, manually run `getsites.py`. 
 
-### Examples of usage:
-Get events from a site:
+### Usage:
 ```
-./getevents.py
+./getsites.py
 ```
 
 Help Text:
