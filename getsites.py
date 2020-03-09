@@ -35,7 +35,71 @@ SCRIPT_NAME = 'CloudGenix Get Site Info -> CSV Generator'
 # Set NON-SYSLOG logging to use function name
 logger = logging.getLogger(__name__)
 
-CSVHEADER = 'Site Name,Admin State,Element Cluster Role,Network Policy Set,Security Policy Set,Network_PolicySet_Stack,Priority_PolicySet_Stack,Address:Street,Address:Street2,Address:City,Address:Postal Code, Address:Country,Latitude,Longitude,Tags\n'
+CSVHEADER = 'Site Name,Admin State,Element Cluster Role,Policy Set(v1),Security Policy Set,Network_PolicySet_Stack,Priority_PolicySet_Stack,Address:Street,Address:Street2,Address:City,Address:Postal Code, Address:Country,Latitude,Longitude,Tags\n'
+
+
+
+nwstackid_nwstackname_dict = {}
+qosstackid_qosstackname_dict = {}
+secpolid_secpolname_dict = {}
+polid_polname_dict = {}
+
+
+def createdicts(cgx_session):
+
+    # Network Stack
+    resp = cgx_session.get.networkpolicysetstacks()
+    if resp.cgx_status:
+        nwstacklist = resp.cgx_content.get("items",None)
+        for nwstack in nwstacklist:
+            nwstackid_nwstackname_dict[nwstack['id']] = nwstack['name']
+
+    else:
+        print("ERR: Could not query Network Policy Stack")
+        cloudgenix.jd_detailed(resp)
+
+
+    # QoS Stack
+    resp = cgx_session.get.prioritypolicysetstacks()
+    if resp.cgx_status:
+        qosstacklist = resp.cgx_content.get("items", None)
+        for qosstack in qosstacklist:
+            qosstackid_qosstackname_dict[qosstack['id']] = qosstack['name']
+
+    else:
+        print("ERR: Could not query Priority Policy Stack")
+        cloudgenix.jd_detailed(resp)
+
+
+    # Policy (v1)
+    resp = cgx_session.get.policysets()
+    if resp.cgx_status:
+        pollist = resp.cgx_content.get("items", None)
+
+        for pol in pollist:
+            polid_polname_dict[pol['id']] = pol['name']
+
+    else:
+        print("ERR: Could not query for Policy Sets (v1)")
+        cloudgenix.jd_detailed(resp)
+
+
+    # Security Set
+    resp = cgx_session.get.securitypolicysets()
+    if resp.cgx_status:
+        secpollist = resp.cgx_content.get("items", None)
+
+        for secpol in secpollist:
+            secpolid_secpolname_dict[secpol['id']] = secpol['name']
+
+    else:
+        print("ERR: Could not query for Security Policy Sets")
+        cloudgenix.jd_detailed(resp)
+
+
+    return
+
+
 
 def get_site_info(cgx_session, site_csv):
     """
@@ -74,21 +138,28 @@ def get_site_info(cgx_session, site_csv):
         element_cluster_role = site.get('element_cluster_role')
 
         network_policyset_id = site.get('policy_set_id')
-        resp = cgx_session.get.networkpolicysets(networkpolicyset_id = network_policyset_id)
-        networkpolicyset_name = resp.cgx_content.get('name', None)
+        if network_policyset_id in polid_polname_dict.keys():
+            networkpolicyset_name = polid_polname_dict[network_policyset_id]
+        else:
+            networkpolicyset_name = None
 
         security_policyset_id = site.get('security_policyset_id')
-        resp = cgx_session.get.securitypolicysets(securitypolicyset_id = security_policyset_id)
-        securitypolicyset_name = resp.cgx_content.get('name', None)
+        if security_policyset_id in secpolid_secpolname_dict.keys():
+            securitypolicyset_name = secpolid_secpolname_dict[security_policyset_id]
+        else:
+            securitypolicyset_name = None
 
         network_policysetstack_id = site.get('network_policysetstack_id')
-        resp = cgx_session.get.networkpolicysetstacks(networkpolicysetstack_id=network_policysetstack_id)
-        networkpolicysetstack_name = resp.cgx_content.get('name', None)
+        if network_policysetstack_id in nwstackid_nwstackname_dict.keys():
+            networkpolicysetstack_name = nwstackid_nwstackname_dict[network_policysetstack_id]
+        else:
+            networkpolicysetstack_name = None
 
-        priority_policysetstack_id = site.get('priority_policysetstack_id')
-        resp = cgx_session.get.prioritypolicysetstacks(prioritypolicysetstack_id=priority_policysetstack_id)
-        prioritypolicysetstack_name = resp.cgx_content.get('name', None)
-
+        qos_policysetstack_id = site.get('priority_policysetstack_id')
+        if qos_policysetstack_id in qosstackid_qosstackname_dict.keys():
+            prioritypolicysetstack_name = qosstackid_qosstackname_dict[qos_policysetstack_id]
+        else:
+            prioritypolicysetstack_name = None
 
 
         address = site.get('address')
@@ -248,6 +319,8 @@ def go():
         csv_file.write(CSVHEADER)
         csv_file.flush()
 
+    # Create Translation Dicts
+    createdicts(cgx_session)
     get_site_info(cgx_session, site_csv)
 
     # end of script, run logout to clear session.
