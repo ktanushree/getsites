@@ -61,6 +61,7 @@ Tanushrees-MacBook-Pro:getsites tanushreekamath$
 #### Version
 | Version | Build | Changes |
 | ------- | ----- | ------- |
+| **1.0.0** | **b2** | Minor bug fixes |
 | **1.0.0** | **b1** | Initial Release. |
 
 

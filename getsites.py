@@ -115,11 +115,11 @@ def get_site_info(cgx_session, site_csv):
         logger.info("ERROR: unable to get sites for account '{0}'.".format(cgx_session.tenant_name))
         return
 
-    #bar = len(site_list) + 1
-    #barcount = 1
+    bar = len(site_list) + 1
+    barcount = 1
 
-    # could be a long query - start a progress bar.
-    #pbar = ProgressBar(widgets=[Percentage(), Bar(), ETA()]).start()
+    #could be a long query - start a progress bar.
+    pbar = ProgressBar(widgets=[Percentage(), Bar(), ETA()],max_value = bar).start()
 
 
     # print "Getting WAN NEtworks"
@@ -162,26 +162,37 @@ def get_site_info(cgx_session, site_csv):
             prioritypolicysetstack_name = None
 
 
-        address = site.get('address')
+        address = site.get('address', None)
+        if address:
+            if address['street'] is not None:
+                street = "\""+address['street']+"\""
+            else:
+                street = address['street']
 
-        if address['street'] is not None:
-            street = "\""+address['street']+"\""
+
+            if address['street2'] is not None:
+                street2 = "\""+address['street2']+"\""
+            else:
+                street2 = address['street2']
+
+            city = address['city']
+            post_code = address['post_code']
+            country = address['country']
         else:
-            street = address['street']
+            street = "n/a"
+            street2 = "n/a"
+            city = "n/a"
+            post_code = "n/a"
+            country = "n/a"
 
-
-        if address['street2'] is not None:
-            street2 = "\""+address['street2']+"\""
+        location = site.get('location',None)
+        if location:
+            latitude = location['latitude']
+            longitude = location['longitude']
         else:
-            street2 = address['street2']
+            latitude = "n/a"
+            longitude = "n/a"
 
-        city = address['city']
-        post_code = address['post_code']
-        country = address['country']
-
-        location = site.get('location')
-        latitude = location['latitude']
-        longitude = location['longitude']
         tags = site.get('tags', None)
         if tags is not None:
             tagnames = " ".join(tags)
@@ -191,11 +202,11 @@ def get_site_info(cgx_session, site_csv):
 
         write_to_csv(site_csv, site_name, admin_state, element_cluster_role, networkpolicyset_name, securitypolicyset_name,  networkpolicysetstack_name, prioritypolicysetstack_name, street, street2, city, post_code, country, latitude, longitude, tagnames)
 
-    #     barcount += 1
-    #     pbar.update(barcount)
-    #
-    # # finish after iteration.
-    # pbar.finish()
+        barcount += 1
+        pbar.update(barcount)
+
+    # finish after iteration.
+    pbar.finish()
 
     return
 
