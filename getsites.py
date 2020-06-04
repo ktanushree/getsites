@@ -164,20 +164,22 @@ def get_site_info(cgx_session, site_csv):
 
         address = site.get('address', None)
         if address:
-            if address['street'] is not None:
-                street = "\""+address['street']+"\""
+            adrstreet = address.get("street",None)
+            adrstreet2 = address.get("street2",None)
+            if adrstreet:
+                street = "\""+adrstreet+"\""
             else:
-                street = address['street']
+                street = adrstreet
 
 
-            if address['street2'] is not None:
-                street2 = "\""+address['street2']+"\""
+            if adrstreet2:
+                street2 = "\""+adrstreet2+"\""
             else:
-                street2 = address['street2']
+                street2 = adrstreet2
 
-            city = address['city']
-            post_code = address['post_code']
-            country = address['country']
+            city = address.get('city',None)
+            post_code = address.get('post_code',None)
+            country = address.get('country',None)
         else:
             street = "n/a"
             street2 = "n/a"
@@ -187,8 +189,8 @@ def get_site_info(cgx_session, site_csv):
 
         location = site.get('location',None)
         if location:
-            latitude = location['latitude']
-            longitude = location['longitude']
+            latitude = location.get('latitude',None)
+            longitude = location.get('longitude',None)
         else:
             latitude = "n/a"
             longitude = "n/a"
