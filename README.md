@@ -61,6 +61,7 @@ Tanushrees-MacBook-Pro:getsites tanushreekamath$
 #### Version
 | Version | Build | Changes |
 | ------- | ----- | ------- |
+| **1.0.0** | **b4** | Added auth token support. Fix for progressbar update |
 | **1.0.0** | **b3** | Minor bug fixes |
 | **1.0.0** | **b2** | Minor bug fixes |
 | **1.0.0** | **b1** | Initial Release. |
