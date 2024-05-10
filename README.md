@@ -1,5 +1,5 @@
-# CloudGenix Get Sites (Preview)
-This utility is used to download sites specific information from the CloudGenix managed network to a CSV file.
+# Prisma SD-WAN Get Sites
+This utility is used to download sites specific information from the Prisma SD-WAN (CloudGenix) managed network to a CSV file.
 
 #### Synopsis
 Enables downloading of all the configured sites and it's relavant information such as location, policies to a CSV file.
